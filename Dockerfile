@@ -3,6 +3,8 @@ FROM ros:kinetic-perception-xenial
 SHELL [ "bash", "-c"]
 
 ENV ROS_WS /ros
+ENV RS_VER 2.30.0
+
 RUN mkdir -p ${ROS_WS}
 
 RUN apt update \
@@ -19,17 +21,38 @@ RUN apt update \
     ros-kinetic-ddynamic-reconfigure \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# ---------------------
 # Install librealsense2
-RUN \
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
-&& sudo add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main" -u \
-&& apt update \
+# ---------------------
+
+# RUN \
+# apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+# && sudo add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main" -u \
+# && apt update \
+# && apt install -y \
+#     librealsense2-dkms \
+#     librealsense2-utils \
+#     librealsense2-dev \
+#     librealsense2-dbg \
+# && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN apt update \
 && apt install -y \
-    librealsense2-dkms \
-    librealsense2-utils \
-    librealsense2-dev \
-    librealsense2-dbg \
+    libssl-dev \
+    libusb-1.0-0-dev \
+    pkg-config \
+    libgtk-3-dev \
+    libglfw3-dev \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ADD https://github.com/IntelRealSense/librealsense/archive/v${RS_VER}.tar.gz /
+
+RUN tar xzf v${RS_VER}.tar.gz \
+&& cd /librealsense-${RS_VER} \
+&& mkdir build && cd build \
+&& cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=true \
+&& make uninstall && make clean && make -j4 && sudo make install
+
 
 RUN mkdir -p ${ROS_WS}/src/realsense
 
