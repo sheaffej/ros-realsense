@@ -1,9 +1,11 @@
 FROM ros:kinetic-perception-xenial
 
 SHELL [ "bash", "-c"]
+WORKDIR /root
 
 ENV ROS_WS /ros
-ENV RS_VER 2.30.0
+ENV INTELRS_VER v2.30.0
+ENV RS_ROS_VER  2.2.11
 
 RUN mkdir -p ${ROS_WS}
 
@@ -45,10 +47,15 @@ RUN apt update \
     libglfw3-dev \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ADD https://github.com/IntelRealSense/librealsense/archive/v${RS_VER}.tar.gz /
+# ADD https://github.com/IntelRealSense/librealsense/archive/v${RS_VER}.tar.gz /
+ADD librealsense ./librealsense
 
-RUN tar xzf v${RS_VER}.tar.gz \
-&& cd /librealsense-${RS_VER} \
+RUN pwd && ls -l
+
+RUN cd librealsense \
+&& git checkout ${INTELRS_VER}
+
+RUN \
 && mkdir build && cd build \
 && cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=true \
 && make uninstall && make clean && make -j4 && sudo make install
@@ -57,12 +64,13 @@ RUN tar xzf v${RS_VER}.tar.gz \
 RUN mkdir -p ${ROS_WS}/src/realsense
 
 # Install realsense2-camera
-ADD https://github.com/IntelRealSense/realsense-ros.git ${ROS_WS}/src/realsense/
+# ADD https://github.com/IntelRealSense/realsense-ros.git ${ROS_WS}/src/realsense/
+ADD realsense-ros ${ROS_WS}/src/realsense-ros
 
 RUN \
 source /opt/ros/kinetic/setup.bash \
-&& cd ${ROS_WS}/src/ \
-&& catkin_init_workspace \
+&& cd ${ROS_WS}/src/realsense && git checkout ${RS_ROS_VER} \
+&& cd ${ROS_WS}/src && catkin_init_workspace \
 && cd ${ROS_WS} \
 && catkin_make clean \
 && catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release \
