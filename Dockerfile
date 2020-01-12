@@ -47,15 +47,10 @@ RUN apt update \
     libglfw3-dev \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# ADD https://github.com/IntelRealSense/librealsense/archive/v${RS_VER}.tar.gz /
+# ADD https://github.com/IntelRealSense/librealsense/archive/v${RS_VER}.tar.gz ./libreasense
 ADD librealsense ./librealsense
 
-RUN pwd && ls -l
-
-RUN cd librealsense \
-&& git checkout ${INTELRS_VER}
-
-RUN \
+RUN cd librealsense && git checkout ${INTELRS_VER} \
 && mkdir build && cd build \
 && cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=true \
 && make uninstall && make clean && make -j4 && sudo make install
@@ -64,12 +59,12 @@ RUN \
 RUN mkdir -p ${ROS_WS}/src/realsense
 
 # Install realsense2-camera
-# ADD https://github.com/IntelRealSense/realsense-ros.git ${ROS_WS}/src/realsense/
+# ADD https://github.com/IntelRealSense/realsense-ros.git ${ROS_WS}/src/realsense-ros/
 ADD realsense-ros ${ROS_WS}/src/realsense-ros
 
 RUN \
 source /opt/ros/kinetic/setup.bash \
-&& cd ${ROS_WS}/src/realsense && git checkout ${RS_ROS_VER} \
+&& cd ${ROS_WS}/src/realsense-ros && git checkout ${RS_ROS_VER} \
 && cd ${ROS_WS}/src && catkin_init_workspace \
 && cd ${ROS_WS} \
 && catkin_make clean \
