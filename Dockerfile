@@ -56,15 +56,15 @@ RUN cd librealsense && git checkout ${INTELRS_VER} \
 && make uninstall && make clean && make -j4 && sudo make install
 
 
-RUN mkdir -p ${ROS_WS}/src/realsense
+#RUN mkdir -p ${ROS_WS}/src/realsense
 
 # Install realsense2-camera
-# ADD https://github.com/IntelRealSense/realsense-ros.git ${ROS_WS}/src/realsense-ros/
-ADD realsense-ros ${ROS_WS}/src/realsense-ros
+# ADD https://github.com/IntelRealSense/realsense_ros.git ${ROS_WS}/src/realsense_ros/
+ADD realsense-ros/realsense2_camera ${ROS_WS}/src/realsense2_camera
 
 RUN \
 source /opt/ros/kinetic/setup.bash \
-&& cd ${ROS_WS}/src/realsense-ros && git checkout ${RS_ROS_VER} \
+#&& cd ${ROS_WS}/src/realsense2_camera && git checkout ${RS_ROS_VER} \
 && cd ${ROS_WS}/src && catkin_init_workspace \
 && cd ${ROS_WS} \
 && catkin_make clean \
