@@ -2,8 +2,8 @@
 # Reference: https://www.docker.com/blog/multi-arch-images/
 
 DOCKER_IMAGE="sheaffej/ros-realsense:latest"
-# PLATFORM="linux/amd64,linux/arm/v7,linux/arm64"
-PLATFORM="linux/amd64,linux/arm64"
+PLATFORM="linux/amd64,linux/arm/v7,linux/arm64"
+#PLATFORM="linux/arm64"
 
 
 echo

@@ -4,13 +4,14 @@ SHELL [ "bash", "-c"]
 WORKDIR /root
 
 ENV ROS_WS /ros
-ENV INTELRS_VER v2.30.0
+ENV INTELRS_VER 2.30.0
 ENV RS_ROS_VER  2.2.11
 
-RUN mkdir -p ${ROS_WS}
+RUN mkdir -p ${ROS_WS}/src
 
 RUN apt update \
-&& apt install -y software-properties-common \
+&& apt install -y \
+    unzip \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Additional ROS packages
@@ -27,6 +28,7 @@ RUN apt update \
 # Install librealsense2
 # ---------------------
 
+# ---> Only works on amd64 <----
 # RUN \
 # apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
 # && sudo add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main" -u \
@@ -48,23 +50,28 @@ RUN apt update \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # ADD https://github.com/IntelRealSense/librealsense/archive/v${RS_VER}.tar.gz ./libreasense
-ADD librealsense ./librealsense
+# ADD librealsense ./librealsense
 
-RUN cd librealsense && git checkout ${INTELRS_VER} \
+RUN curl -LO https://github.com/IntelRealSense/librealsense/archive/v${INTELRS_VER}.tar.gz \
+&& tar xzf v${INTELRS_VER}.tar.gz \
+&& pushd librealsense-${INTELRS_VER} \
+# && git checkout ${INTELRS_VER} \
 && mkdir build && cd build \
 && cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=true \
-&& make uninstall && make clean && make -j4 && sudo make install
+&& make uninstall && make clean && make -j4 && sudo make install \
+&& popd \
+&& rm -Rf librealsense-${INTELRS_VER}
 
-
-#RUN mkdir -p ${ROS_WS}/src/realsense
 
 # Install realsense2-camera
 # ADD https://github.com/IntelRealSense/realsense_ros.git ${ROS_WS}/src/realsense_ros/
-ADD realsense-ros/realsense2_camera ${ROS_WS}/src/realsense2_camera
+# ADD realsense-ros/realsense2_camera ${ROS_WS}/src/realsense2_camera
 
-RUN \
-source /opt/ros/kinetic/setup.bash \
-#&& cd ${ROS_WS}/src/realsense2_camera && git checkout ${RS_ROS_VER} \
+RUN curl -LO https://github.com/IntelRealSense/realsense-ros/archive/${RS_ROS_VER}.zip \
+&& unzip ${RS_ROS_VER}.zip \
+&& cd realsense-ros-${RS_ROS_VER} \
+# && cd ${ROS_WS}/src/realsense2_camera && git checkout ${RS_ROS_VER} \
+&& source /opt/ros/kinetic/setup.bash \
 && cd ${ROS_WS}/src && catkin_init_workspace \
 && cd ${ROS_WS} \
 && catkin_make clean \
