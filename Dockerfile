@@ -5,14 +5,15 @@ WORKDIR /root
 
 ENV ROS_WS /ros
 ENV INTELRS_VER 2.30.0
-ENV RS_ROS_VER  2.2.11
+ENV INTELRS_BRANCH v2.30.0
+ENV RS_ROS_BRANCH 2.2.11
 
 RUN mkdir -p ${ROS_WS}/src
 
-RUN apt update \
-&& apt install -y \
-    unzip \
-&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# RUN apt update \
+# && apt install -y \
+#     unzip \
+# && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Additional ROS packages
 RUN apt update \
@@ -56,27 +57,37 @@ RUN curl -LO https://github.com/IntelRealSense/librealsense/archive/v${INTELRS_V
 && tar xzf v${INTELRS_VER}.tar.gz \
 && pushd librealsense-${INTELRS_VER} \
 # && git checkout ${INTELRS_VER} \
+#RUN git clone --branch ${INTELRS_BRANCH} https://github.com/IntelRealSense/librealsense.git \
+#&& pushd librealsense \
 && mkdir build && cd build \
 && cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=true \
 && make uninstall && make clean && make -j4 && sudo make install \
 && popd \
-&& rm -Rf librealsense-${INTELRS_VER}
+&& rm -Rf librealsense
 
+
+# ---------------------
+# Install Realsense-ROS
+# ---------------------
 
 # Install realsense2-camera
 # ADD https://github.com/IntelRealSense/realsense_ros.git ${ROS_WS}/src/realsense_ros/
 # ADD realsense-ros/realsense2_camera ${ROS_WS}/src/realsense2_camera
 
-RUN curl -LO https://github.com/IntelRealSense/realsense-ros/archive/${RS_ROS_VER}.zip \
-&& unzip ${RS_ROS_VER}.zip \
-&& cd realsense-ros-${RS_ROS_VER} \
-# && cd ${ROS_WS}/src/realsense2_camera && git checkout ${RS_ROS_VER} \
+# RUN curl -LO https://github.com/IntelRealSense/realsense-ros/archive/${RS_ROS_VER}.zip \
+# && unzip ${RS_ROS_VER}.zip \
+# && cd realsense-ros-${RS_ROS_VER} \
+
+RUN git clone --branch ${RS_ROS_BRANCH} https://github.com/IntelRealSense/realsense-ros.git \
+&& mv realsense-ros/realsense2_camera ${ROS_WS}/src/realsense2_camera \
 && source /opt/ros/kinetic/setup.bash \
-&& cd ${ROS_WS}/src && catkin_init_workspace \
+&& pushd ${ROS_WS}/src && catkin_init_workspace \
 && cd ${ROS_WS} \
 && catkin_make clean \
 && catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release \
-&& catkin_make install
+&& catkin_make install \
+&& popd \
+&& rm -Rf realsense-ros
 
 ADD ./entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
