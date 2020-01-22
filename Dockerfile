@@ -63,7 +63,7 @@ RUN curl -LO https://github.com/IntelRealSense/librealsense/archive/v${INTELRS_V
 && cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=true \
 && make uninstall && make clean && make -j4 && sudo make install \
 && popd \
-&& rm -Rf librealsense
+&& rm -Rf librealsense-${INTELRS_VER} v${INTELRS_VER}.tar.gz
 
 
 # ---------------------
