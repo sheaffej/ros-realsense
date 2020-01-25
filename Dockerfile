@@ -4,7 +4,8 @@ SHELL [ "bash", "-c"]
 WORKDIR /root
 ADD ./entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD [ "sleep", "infinity" ]
+# CMD [ "sleep", "infinity" ]
+CMD [ "bash" ]
 
 ENV ROS_WS /ros
 ENV INTELRS_VER 2.30.0
