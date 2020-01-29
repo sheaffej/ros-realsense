@@ -4,7 +4,6 @@ SHELL [ "bash", "-c"]
 WORKDIR /root
 ADD ./entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
-# CMD [ "sleep", "infinity" ]
 CMD [ "bash" ]
 
 ENV ROS_WS /ros
@@ -43,6 +42,7 @@ RUN apt update \
     ros-kinetic-diagnostic-updater \
     ros-kinetic-ddynamic-reconfigure \
     ros-kinetic-rgbd-launch \
+    ros-kinetic-depthimage-to-laserscan \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Download realsense-ros
