@@ -50,6 +50,9 @@ RUN git clone --branch ${RS_ROS_BRANCH} https://github.com/IntelRealSense/realse
 && mv realsense-ros/realsense2_camera ${ROS_WS}/src/realsense2_camera \
 && rm -Rf realsense-ros
 
+# Add additional launch files
+COPY ./launch/* ${ROS_WS}/src/realsense2_camera/launch/
+
 # Build ROS workspace
 RUN source /opt/ros/kinetic/setup.bash \
 && pushd ${ROS_WS}/src && catkin_init_workspace \
