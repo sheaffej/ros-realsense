@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
 DOCKER_IMAGE="sheaffej/ros-realsense"
+CONTAINER_NAME="pointcloud"
 
 [ -z "$ROS_MASTER_URI" ] && echo "Please set ROS_MASTER_URI env" && exit 1
 
 docker run -d --rm \
---name rs_pointcloud \
+--name ${CONTAINER_NAME} \
 --privileged \
 --net host \
 --env DISPLAY \
