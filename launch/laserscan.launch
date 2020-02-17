@@ -114,8 +114,8 @@
       <param name="range_min" value="0.20"/>
       <param name="scan_height" value="60"/>
       <param name="output_frame_id" value="camera_link"/>
-      <remap from="image" to="camera/depth/image_rect_raw"/>
-      <remap from="camera_info" to="camera/depth/camera_info"/>
+      <remap from="image" to="/camera/depth/image_rect_raw"/>
+      <remap from="camera_info" to="/camera/depth/camera_info"/>
 <!--      <remap from="scan" to="$(arg scan_topic)"/>  -->
     </node>
 
