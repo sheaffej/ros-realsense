@@ -13,4 +13,4 @@ docker run -d --rm \
 --env ROS_MASTER_URI \
 ${DOCKER_IMAGE} roslaunch realsense2_camera laserscan.launch
 
-docker logs -f ${CONTAINER_NAME}
+#docker logs -f ${CONTAINER_NAME}
