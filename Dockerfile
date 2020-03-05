@@ -1,4 +1,6 @@
-FROM ros:kinetic-perception-xenial
+# FROM ros:kinetic-perception-xenial
+FROM ros:melodic-perception-bionic
+
 
 SHELL [ "bash", "-c"]
 WORKDIR /root
@@ -36,13 +38,20 @@ RUN curl -LO https://github.com/IntelRealSense/librealsense/archive/v${INTELRS_V
 # Additional ROS packages
 RUN apt update \
 && apt install -y \
-    ros-kinetic-cv-bridge \
-    ros-kinetic-image-transport \
-    ros-kinetic-tf \
-    ros-kinetic-diagnostic-updater \
-    ros-kinetic-ddynamic-reconfigure \
-    ros-kinetic-rgbd-launch \
-    ros-kinetic-depthimage-to-laserscan \
+    # ros-kinetic-cv-bridge \
+    # ros-kinetic-image-transport \
+    # ros-kinetic-tf \
+    # ros-kinetic-diagnostic-updater \
+    # ros-kinetic-ddynamic-reconfigure \
+    # ros-kinetic-rgbd-launch \
+    # ros-kinetic-depthimage-to-laserscan \
+    ros-melodic-cv-bridge \
+    ros-melodic-image-transport \
+    ros-melodic-tf \
+    ros-melodic-diagnostic-updater \
+    ros-melodic-ddynamic-reconfigure \
+    ros-melodic-rgbd-launch \
+    ros-melodic-depthimage-to-laserscan \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Download realsense-ros
@@ -54,10 +63,11 @@ RUN git clone --branch ${RS_ROS_BRANCH} https://github.com/IntelRealSense/realse
 COPY ./launch/* ${ROS_WS}/src/realsense2_camera/launch/
 
 # Build ROS workspace
-RUN source /opt/ros/kinetic/setup.bash \
-&& pushd ${ROS_WS}/src && catkin_init_workspace \
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
+&& cd ${ROS_WS}/src \
+&& catkin_init_workspace \
 && cd ${ROS_WS} \
 && catkin_make clean \
 && catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release \
-&& catkin_make install \
-&& popd \
+&& catkin_make install
+
