@@ -6,8 +6,8 @@ DOCKER_IMAGE="sheaffej/ros-realsense"
 
 docker run -d --rm \
 --name rs_camera \
---privileged \
 --net host \
+--privileged \
 --env DISPLAY \
 --env ROS_MASTER_URI \
 ${DOCKER_IMAGE} roslaunch realsense2_camera rs_camera.launch
