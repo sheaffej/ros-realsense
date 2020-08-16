@@ -4,13 +4,13 @@ SHELL [ "bash", "-c"]
 WORKDIR /root
 
 ENV ROS_WS /ros
-ENV INTELRS_VER 2.30.0
-ENV INTELRS_BRANCH v2.30.0
-ENV RS_ROS_BRANCH 2.2.11
+ENV INTELRS_VER 2.37.0
+ENV RS_ROS_VER 2.2.15
 
 # Additional OS dependencies
-RUN apt update \
-&& apt install -y \
+RUN apt-get update \
+&& apt-get install -y \
+    software-properties-common \
     curl \
     libssl-dev \
     libusb-1.0-0-dev \
@@ -19,19 +19,9 @@ RUN apt update \
     libglfw3-dev \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Install librealsense2
-RUN curl -LO https://github.com/IntelRealSense/librealsense/archive/v${INTELRS_VER}.tar.gz \
-&& tar xzf v${INTELRS_VER}.tar.gz \
-&& pushd librealsense-${INTELRS_VER} \
-&& mkdir build && cd build \
-&& cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=true -DBUILD_GRAPHICAL_EXAMPLES=false \
-&& make uninstall && make clean && make -j4 && sudo make install \
-&& popd \
-&& rm -Rf librealsense-${INTELRS_VER} v${INTELRS_VER}.tar.gz
-
 # Additional ROS packages
-RUN apt update \
-&& apt install -y \
+RUN apt-get update \
+&& apt-get install -y \
     ros-melodic-cv-bridge \
     ros-melodic-image-transport \
     ros-melodic-tf \
@@ -41,12 +31,32 @@ RUN apt update \
     ros-melodic-depthimage-to-laserscan \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Install librealsense2
+RUN curl -LO https://github.com/IntelRealSense/librealsense/archive/v${INTELRS_VER}.tar.gz \
+&& tar xzf v${INTELRS_VER}.tar.gz \
+&& pushd librealsense-${INTELRS_VER} \
+&& mkdir build && cd build \
+&& cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=true -DBUILD_GRAPHICAL_EXAMPLES=false \
+&& make uninstall && make clean && make -j8 && sudo make install \
+&& popd \
+&& rm -Rf librealsense-${INTELRS_VER} v${INTELRS_VER}.tar.gz
+
+
 RUN mkdir -p ${ROS_WS}/src
 
 # Download realsense-ros
-RUN git clone --branch ${RS_ROS_BRANCH} https://github.com/IntelRealSense/realsense-ros.git \
-&& mv realsense-ros/realsense2_camera ${ROS_WS}/src/realsense2_camera \
-&& rm -Rf realsense-ros
+
+# RUN git clone --branch ${RS_ROS_BRANCH} https://github.com/IntelRealSense/realsense-ros.git \
+# && mv realsense-ros/realsense2_camera ${ROS_WS}/src/realsense2_camera \
+# && rm -Rf realsense-ros
+
+RUN curl -LO https://github.com/IntelRealSense/realsense-ros/archive/${RS_ROS_VER}.tar.gz \
+&& tar xzf ${RS_ROS_VER}.tar.gz \
+&& pushd realsense-ros-${RS_ROS_VER} \
+&& mv realsense2_camera ${ROS_WS}/src/realsense2_camera \
+&& popd \
+&& rm -Rf realsense-ros-${RS_ROS_VER}
+
 
 # Add additional launch files
 COPY ./launch/* ${ROS_WS}/src/realsense2_camera/launch/
